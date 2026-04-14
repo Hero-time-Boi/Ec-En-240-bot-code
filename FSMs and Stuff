@@ -22,6 +22,8 @@
 your sensors and servos. */
 #include "Arduino.h"
 #include <CapacitiveSensor.h>
+#include <Servo.h>
+#include <NewPing.h>
 
 //
 // Compiler defines: the compiler replaces each name with its assignment
@@ -59,9 +61,12 @@ your sensors and servos. */
 
 // Ultrasonic sensor pin - Lab 6
 // This will replace button 3 and LED 3 will no longer be needed
+#define TRIGGER_PIN 12
+#define ECHO_PIN 10
 
 // Servo pin - Lab 6
 // This will replace LEDs 1 and 5
+#define SERVO_PIN 9
 
 /***********************************************************/
 // Configuration parameter definitions
@@ -78,10 +83,13 @@ your sensors and servos. */
 #define CAP_SENSOR_THRESHOLD 25
 
 // Parameters for servo control as well as instantiation - Lab 6
-
+#define SERVO_START_ANGLE 90
+#define SERVO_UP_LIMIT 180
+#define SERVO_DOWN_LIMIT 80
+static Servo myServo;
 
 // Parameters for ultrasonic sensor and instantiation - Lab 6
-
+#define MAX_DISTANCE 20
 
 // Parameter to define when the ultrasonic sensor detects a collision - Lab 6
 
@@ -114,7 +122,6 @@ your sensors and servos. */
 #define SERVO_MOVE_UP   1
 #define SERVO_MOVE_DOWN 2
 
-
 /***********************************************************/
 // Global variables that define PERCEPTION and initialization
 
@@ -143,6 +150,8 @@ int ActionRobotDrive = DRIVE_STOP;
 int ActionRobotSpeed = SPEED_LOW;
 // Servo Action (using Definitions)
 int ActionServoMove =  SERVO_MOVE_STOP;
+
+int CurrentServoAngle = SERVO_START_ANGLE;
 
 /********************************************************************
   SETUP function - this gets executed at power up, or after a reset
@@ -293,17 +302,23 @@ bool isButtonPushed(int button_pin) {
 ////////////////////////////////////////////////////////////////////
 // Function that detects if there is an obstacle in front of robot
 ////////////////////////////////////////////////////////////////////
+
+static NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
+
 bool isCollision() {
   //This is where you add code that tests if the collision button 
   // was pushed (BUTTON_3)
   //In lab 6 you will add a sonar sensor to detect collision and
   // the code for the sonar sensor will go in this function.
   // Until then we will use a button to model the sensor.
-  if (isButtonPushed(BUTTON_3)) {
-    return true;
+  int sonar_distance = sonar.ping_cm(); // If the distance is too big, it returns 0.
+  Serial.println(sonar_distance);
+  if(sonar_distance != 0){ 
+    return (sonar_distance < MAX_DISTANCE);
   } else {
-    return false;
+	return false;
   }
+
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -615,18 +630,19 @@ void MoveServo() {
   /* Add CurrentServoAngle in lab 6 */
   switch(ActionServoMove) {
     case SERVO_MOVE_STOP:
-      doTurnLedOff(LED_1);
-      doTurnLedOff(LED_5);
       break;
     case SERVO_MOVE_UP:
-      doTurnLedOn(LED_1);
-      doTurnLedOff(LED_5);
+     if (CurrentServoAngle <= SERVO_UP_LIMIT) {
+        CurrentServoAngle = CurrentServoAngle + 5;
+     }
       break;
     case SERVO_MOVE_DOWN:
-      doTurnLedOn(LED_5);
-      doTurnLedOff(LED_1);
+     if (CurrentServoAngle >= SERVO_DOWN_LIMIT) {
+        CurrentServoAngle = CurrentServoAngle - 5;
+     }
       break;
   }
+  myServo.write(CurrentServoAngle);
 }
 
 
