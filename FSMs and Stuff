@@ -68,7 +68,7 @@ your sensors and servos. */
 // Replace the parameters with those that are appropriate for your robot
 
 // Voltage at which a button is considered to be pressed
-#define BUTTON_THRESHOLD 2.5
+#define BUTTON_THRESHOLD 3
 
 // Voltage at which a photodiode voltage is considered to be present - Lab 5
 
@@ -179,7 +179,7 @@ void loop() {
   // This DebugStateOutput flag can be used to easily turn on the
   // serial debugging to know what the robot is perceiving and what
   // actions the robot wants to take.
-  int DebugStateOutput = true; // Change false to true to debug
+  int DebugStateOutput = false; // Change false to true to debug
   
   RobotPerception(); // PERCEPTION
   if (DebugStateOutput) {
@@ -204,7 +204,7 @@ void loop() {
     Serial.print("\t");
   }
   RobotAction(); // ACTION
-  Serial.print("\n");
+  // Serial.print("\n");
 }
 
 /**********************************************************************************************************
@@ -284,11 +284,9 @@ bool isButtonPushed(int button_pin) {
   //Remember that when the voltage is 0, it's only close to zero.
   //Hint: Call the getPinVoltage function and if that value is greater
   // than the BUTTON_THRESHOLD variable toward the top of the file, return true.
-  if (getPinVoltage(button_pin)>= BUTTON_THRESHOLD){
-    return true;
-  } else {
-    return false;
-  }
+  float light = getPinVoltage(button_pin);
+  Serial.println(light);
+  return (light > BUTTON_THRESHOLD);
 }
 
 
