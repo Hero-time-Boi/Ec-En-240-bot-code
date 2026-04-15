@@ -177,7 +177,7 @@ void setup() {
   pinMode(CAP_SENSOR_RECIEVE, INPUT);
 
   //Set up servo - Lab 6
-
+  myServo.attach(9);
 }
 
 /********************************************************************
@@ -364,7 +364,7 @@ void fsmCollisionDetection() {
       //There is an obstacle, stop the robot
       ActionCollision = COLLISION_ON; // Sets the action to turn on the collision LED
       /* Add code in milestone 2 to stop the robot's wheels - Hint: ActionRobotDrive = ________ */
-      ActionRobotDrive = DRIVE_STOP;
+      ActionRobotDrive = DRIVE_LEFT;
       
       
       //State transition logic
@@ -569,6 +569,11 @@ void fsmChangeSpeed() {
     ActionRobotSpeed = SPEED_MID;
     changeSpeedState = 3;
     break;
+
+    case 3:
+    ActionRobotSpeed = SPEED_HIGH;
+    changeSpeedState = 4;
+    break;
     
     default: 
     changeSpeedState = 0;
@@ -631,12 +636,12 @@ void MoveServo() {
   switch(ActionServoMove) {
     case SERVO_MOVE_STOP:
       break;
-    case SERVO_MOVE_UP:
+    case SERVO_MOVE_DOWN:
      if (CurrentServoAngle <= SERVO_UP_LIMIT) {
         CurrentServoAngle = CurrentServoAngle + 5;
      }
       break;
-    case SERVO_MOVE_DOWN:
+    case SERVO_MOVE_UP:
      if (CurrentServoAngle >= SERVO_DOWN_LIMIT) {
         CurrentServoAngle = CurrentServoAngle - 5;
      }
